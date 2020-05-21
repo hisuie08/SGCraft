@@ -199,13 +199,11 @@ public class BaseTileEntity extends TileEntity
     @Override
     public void invalidate() {
         releaseChunkTicket();
-        //System.out.println("Invalidated TE: " + this);
         super.invalidate();
     }
     
     public void releaseChunkTicket() {
         if (chunkTicket != null) {
-            //System.out.println("Release Ticket: " + chunkTicket.getChunkList());
             ForgeChunkManager.releaseTicket(chunkTicket);
             chunkTicket = null;
         }

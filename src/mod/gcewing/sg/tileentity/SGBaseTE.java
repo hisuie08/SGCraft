@@ -384,9 +384,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     void updateChunkLoadingStatus() {
         if (state != SGState.Idle) {
             int n = chunkLoadingRange;
-            // Note this has to be at least one or the chunk loading ticket will fail.
-            if (n <= 0)
-                n = 1;
+            if (n < 0)
+                n = 0;
             SGCraft.chunkManager.setForcedChunkRange(this, -n, -n, n, n);
         } else {
             SGCraft.chunkManager.clearForcedChunkRange(this);
@@ -894,7 +893,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         maxTimeout = newTimeout;
         timeout = newTimeout;
         markChanged();
-        if ((oldState == SGState.Idle) != (newState == SGState.Idle)) {
+        if (((oldState == SGState.Idle) != (newState == SGState.Idle)) || (oldState == SGState.attemptToDial != (newState == SGState.attemptToDial))) {
             updateChunkLoadingStatus();
             world.notifyNeighborsOfStateChange(pos, getBlockType(), true);
             //Update: may not need observer update here.
@@ -1181,9 +1180,9 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
 
         startDiallingStargate(address, targetGate, true, (this.chevronsLockOnDial && !ccInterface));
-        if (!ccInterface) {
-            targetGate.enterState(SGState.attemptToDial, 0); // Force remote gate immediate change state to help chunk stay loaded
-        }
+        targetGate.enterState(SGState.attemptToDial, 5); // Force remote gate immediate change state to help chunk stay loaded
+        // Note to Dockter: added a check in update the dialing status; which is now causing a double chunk ticket load; because for some reason
+        // the Computer interface is causing the TE's to double load?  Makes no sense, I know....
         targetGate.startDiallingStargate(homeAddress, this, false, (this.chevronsLockOnDial && !ccInterface));
 
         if (this.isInitiator) {
