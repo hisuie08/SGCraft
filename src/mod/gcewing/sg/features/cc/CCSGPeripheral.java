@@ -140,7 +140,6 @@ public class CCSGPeripheral implements IPeripheral {
     }
     
     public void attach(IComputerAccess cpu) {
-        System.out.printf("CCSGPeripheral.attach: to %s\n", cpu);
         this.world.getMinecraftServer().addScheduledTask(() -> {
             CCInterfaceTE te = getInterfaceTE();
             if (te != null) {
@@ -150,7 +149,6 @@ public class CCSGPeripheral implements IPeripheral {
     }
     
     public void detach(IComputerAccess cpu) {
-        System.out.printf("CCSGPeripheral.detach: from %s\n", cpu);
         this.world.getMinecraftServer().addScheduledTask(() -> {
             CCInterfaceTE te = getInterfaceTE();
             if (te != null) {
