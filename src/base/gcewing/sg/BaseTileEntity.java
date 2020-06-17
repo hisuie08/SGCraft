@@ -34,6 +34,7 @@ public class BaseTileEntity extends TileEntity
     public byte side, turn;
     public Ticket chunkTicket;
     protected boolean updateChunk;
+    public boolean isPending = false;
 
     public int getX() {return pos.getX();}
     public int getY() {return pos.getY();}
@@ -198,8 +199,13 @@ public class BaseTileEntity extends TileEntity
 
     @Override
     public void invalidate() {
-        releaseChunkTicket();
-        super.invalidate();
+        if (!isPending) {
+            releaseChunkTicket();
+            //System.out.println("Invalidated TE: " + this);
+            super.invalidate();
+        }
+
+        isPending = false;
     }
     
     public void releaseChunkTicket() {
