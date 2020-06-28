@@ -963,7 +963,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         if (address.length() > 0) {
             DHDTE te = getLinkedControllerTE();
             if (te != null) {
-                if (connect(address, player, false) != null) {
+                if (connect(address, player, false, false) != null) {
                     numEngagedChevrons = 0;
                     markChanged();
                 }
@@ -1004,7 +1004,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
     // Connect Here!!!
     // *************************************
 
-    public String connect(String address, EntityPlayer player, boolean ccInterface) {
+    public String connect(String address, EntityPlayer player, boolean ccInterface, boolean pending) {
         // Note:  if player is null when introduced to this method, then it usually indicates a CI attempting to dial.
         // Note:  ccInterface == true so it stops the immediate chevron lock if a ccInterface is the one doing the dialing.
         debugEnergyUse = false;
@@ -1029,7 +1029,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
 
         SGBaseTE targetGate;
         try {
-            targetGate = SGAddressing.findAddressedStargate(address, world);
+            targetGate = SGAddressing.findAddressedStargate(address, world, pending);
         } catch (SGAddressing.AddressingError e) {
             return diallingFailure(player, e.getMessage());
         }
@@ -1517,7 +1517,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             this.numEngagedChevrons = enteredAddress.length();
 
             if (last) {
-                String value = connect(address, player, false);
+                String value = connect(address, player, false, false);
 
                 if (value != null) {
                     this.clearIdleConnection();
@@ -1532,7 +1532,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         String randomAddress = GeneratorAddressRegistry.randomAddress(world, this.homeAddress, new Random());
         if (randomAddress != null) {
             if (this.allowOutgoingAddress(randomAddress, this.defaultAllowOutgoing)) {
-                SGBaseTE malfunctionDestinationGate = SGAddressing.findAddressedStargate(randomAddress, world);
+                SGBaseTE malfunctionDestinationGate = SGAddressing.findAddressedStargate(randomAddress, world, false);
                 if (malfunctionDestinationGate != null) {
                     if (malfunctionDestinationGate.allowIncomingAddress(this.homeAddress, malfunctionDestinationGate.defaultAllowIncoming)) {
                         this.getConnectedStargateTE().clearConnection();
