@@ -3,6 +3,7 @@ package gcewing.sg.features.zpm;
 import static gcewing.sg.BaseMod.isModLoaded;
 
 import gcewing.sg.features.ic2.zpm.interfacecart.ZpmInterfaceCartTE;
+import gcewing.sg.features.ic2.zpm.modulehub.ZpmHubTE;
 import gcewing.sg.features.zpm.console.ZpmConsoleTE;
 import gcewing.sg.interfaces.ISGEnergySource;
 import net.minecraft.tileentity.TileEntity;
@@ -59,6 +60,18 @@ public class ZpmAddon {
                         if (((ZpmInterfaceCartTE) nte).isEmpty()) {
                             if (debugAddon) {
                                 System.out.println("ZPM cart is empty");
+                            }
+                            return 0;
+                        }
+                        zpmPower += ((ISGEnergySource) nte).availableEnergy();
+                    }
+                    if (nte instanceof ZpmHubTE) {
+                        if (debugAddon) {
+                            System.out.printf("SGBaseTE.zpmHubNear: %s at %s\n", nte, nearPos);
+                        }
+                        if (((ZpmHubTE) nte).isEmpty()) {
+                            if (debugAddon) {
+                                System.out.println("ZPM Hub is empty");
                             }
                             return 0;
                         }
