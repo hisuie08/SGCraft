@@ -125,7 +125,7 @@ public final class ZpmInterfaceCartTE extends BaseTileInventory implements ISGEn
         }
 
         markChanged();
-        return amount;
+        return supply;
     }
 
     @Override

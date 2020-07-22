@@ -134,7 +134,7 @@ public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource
         }
 
         markChanged();
-        return amount;
+        return supply;
     }
 
     @Override
