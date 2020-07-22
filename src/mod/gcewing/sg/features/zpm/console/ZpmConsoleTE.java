@@ -220,26 +220,14 @@ public final class ZpmConsoleTE extends BaseTileInventory implements ISGEnergySo
     }
 
     private void pingSGBaseTE() {
-        if (this.world.isRemote) {
-            return;
-        }
+       if (world != null && !world.isRemote) {
+           TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.pos, SGCraft.zpmSearchRange, false);
 
-        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.pos, SGCraft.zpmSearchRange, false);
-
-        if (!(localGateTE instanceof SGBaseTE)) {
-            TileEntity dhdBaseTE = GateUtil.locateDHD(this.world, this.pos, SGCraft.zpmSearchRange, false);
-            if (dhdBaseTE instanceof DHDTE) {
-                DHDTE dhd = (DHDTE) dhdBaseTE;
-                if (dhd.isLinkedToStargate) {
-                    localGateTE = dhd.getLinkedStargateTE();
-                }
-            }
-        }
-
-        if (localGateTE instanceof SGBaseTE) {
-            SGBaseTE localGate = (SGBaseTE) localGateTE;
-            localGate.validateZPM();
-        }
+           if (localGateTE instanceof SGBaseTE) {
+               SGBaseTE localGate = (SGBaseTE) localGateTE;
+               localGate.validateZPM();
+           }
+       }
     }
 
     @Override

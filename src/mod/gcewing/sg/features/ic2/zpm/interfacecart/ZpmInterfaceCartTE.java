@@ -253,7 +253,7 @@ public final class ZpmInterfaceCartTE extends BaseTileInventory implements ISGEn
     }
 
     private void pingSGBaseTE() {
-        if (!world.isRemote) {
+        if (world != null && !world.isRemote) {
             TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.pos, SGCraft.zpmSearchRange, false);
 
             if (localGateTE instanceof SGBaseTE) {
