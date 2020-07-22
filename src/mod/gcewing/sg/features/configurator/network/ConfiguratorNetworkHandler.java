@@ -1,23 +1,16 @@
 package gcewing.sg.features.configurator.network;
 
 import static gcewing.sg.tileentity.SGBaseTE.sendBasicMsg;
-import static gcewing.sg.tileentity.SGBaseTE.sendErrorMsg;
 
 import gcewing.sg.BaseDataChannel;
 import gcewing.sg.SGCraft;
 import gcewing.sg.features.configurator.client.gui.ConfiguratorScreen;
-import gcewing.sg.features.gdo.client.gui.GdoScreen;
-import gcewing.sg.features.pdd.client.gui.PddScreen;
 import gcewing.sg.network.SGChannel;
 import gcewing.sg.tileentity.SGBaseTE;
 import gcewing.sg.tileentity.data.GateAccessData;
 import gcewing.sg.tileentity.data.PlayerAccessData;
-import gcewing.sg.util.SGAddressing;
-import gcewing.sg.util.SGState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 
 import java.util.Optional;
 
@@ -91,7 +84,6 @@ public class ConfiguratorNetworkHandler extends SGChannel {
     public void handleConfiguratorInputFromClient(EntityPlayer player, ChannelInput data) {
         BlockPos pos = readCoords(data);
         SGBaseTE te = SGBaseTE.at(player.world, pos);
-        String playerName = player.getName();
 
         int secondsToStayOpen = data.readInt();
         double ringRotationSpeed = data.readDouble();
@@ -121,7 +113,7 @@ public class ConfiguratorNetworkHandler extends SGChannel {
 
         boolean isPermissionsAdmin = SGCraft.hasPermissionSystem() && SGCraft.hasPermission(player, "sgcraft.admin"); // Fallback for a full permissions system override to the Access System
 
-        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && te.allowAdminAccess(playerName) || isPermissionsAdmin) {
+        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && te.allowAdminAccess(player.getName()) || isPermissionsAdmin) {
             if (SGCraft.hasPermission(player, "sgcraft.configurator.secondsToStayOpen") || isPermissionsAdmin) {
                 te.secondsToStayOpen = secondsToStayOpen;
                 te.ticksToStayOpen = te.secondsToStayOpen * 20;
@@ -173,7 +165,6 @@ public class ConfiguratorNetworkHandler extends SGChannel {
         SGBaseTE te = SGBaseTE.at(player.world, pos);
 
         String address = data.readUTF();
-        String playerName = player.getName();
         boolean defaultAllowIncoming = data.readBoolean();
         boolean defaultAllowOutgoing = data.readBoolean();
         boolean allowIncoming = data.readBoolean();
@@ -186,7 +177,7 @@ public class ConfiguratorNetworkHandler extends SGChannel {
 
         boolean isPermissionsAdmin = SGCraft.hasPermissionSystem() && SGCraft.hasPermission(player, "sgcraft.admin"); // Fallback for a full permissions system override to the Access System
 
-        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && te.allowAdminAccess(playerName) || isPermissionsAdmin) {
+        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && te.allowAdminAccess(player.getName()) || isPermissionsAdmin) {
             if (address.isEmpty()) { // indicates the user clicked the bottom save button
                 te.defaultAllowIncoming = defaultAllowIncoming;
                 te.defaultAllowOutgoing = defaultAllowOutgoing;
@@ -234,7 +225,7 @@ public class ConfiguratorNetworkHandler extends SGChannel {
 
         boolean isPermissionsAdmin = SGCraft.hasPermissionSystem() && SGCraft.hasPermission(player, "sgcraft.admin"); // Fallback for a full permissions system override to the Access System
 
-        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && te.allowAdminAccess(playerName) || isPermissionsAdmin) {
+        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && te.allowAdminAccess(player.getName()) || isPermissionsAdmin) {
             if (playerName.isEmpty()) {
                 te.defaultAllowGateAccess = defaultAllowAccess;
                 te.defaultAllowIrisAccess = defaultAllowIris;
@@ -262,7 +253,6 @@ public class ConfiguratorNetworkHandler extends SGChannel {
     public void handleGAAEntryUpdateFromClient(EntityPlayer player, ChannelInput data) {
         BlockPos pos = readCoords(data);
         SGBaseTE localGate = SGBaseTE.at(player.world, pos);
-        String playerName = player.getName();
         String oldAddress = data.readUTF();
         String newAddress = data.readUTF();
         int function = data.readInt();
@@ -273,7 +263,7 @@ public class ConfiguratorNetworkHandler extends SGChannel {
         }
         boolean isPermissionsAdmin = SGCraft.hasPermissionSystem() && SGCraft.hasPermission(player, "sgcraft.admin"); // Fallback for a full permissions system override to the Access System
 
-        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && localGate.allowAdminAccess(playerName) || isPermissionsAdmin) {
+        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && localGate.allowAdminAccess(player.getName()) || isPermissionsAdmin) {
             if (localGate.getGateAccessData() != null) {
                 if (oldAddress.isEmpty() && function == 1) {
                     localGate.getGateAccessData().add(new GateAccessData(newAddress, true, true));
@@ -313,7 +303,6 @@ public class ConfiguratorNetworkHandler extends SGChannel {
     public void handlePAEntryUpdateFromClient(EntityPlayer player, ChannelInput data) {
         BlockPos pos = readCoords(data);
         SGBaseTE localGate = SGBaseTE.at(player.world, pos);
-        String playerName = player.getName();
         String oldName = data.readUTF();
         String newName = data.readUTF();
         int function = data.readInt();
@@ -325,7 +314,7 @@ public class ConfiguratorNetworkHandler extends SGChannel {
 
         boolean isPermissionsAdmin = SGCraft.hasPermissionSystem() && SGCraft.hasPermission(player, "sgcraft.admin"); // Fallback for a full permissions system override to the Access System
 
-        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && localGate.allowAdminAccess(playerName) || isPermissionsAdmin) {
+        if (SGCraft.hasPermission(player, "sgcraft.gui.configurator") && localGate.allowAdminAccess(player.getName()) || isPermissionsAdmin) {
             if (localGate.getPlayerAccessData() != null) {
                 if (oldName.isEmpty() && function == 1) {
                     localGate.getPlayerAccessData().add(new PlayerAccessData(newName, true, true, player.getName().equalsIgnoreCase(newName)));
