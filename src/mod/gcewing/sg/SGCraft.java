@@ -185,6 +185,10 @@ public class SGCraft extends BaseMod<SGCraftClient> {
     // Unbreakable Block Option
     public static boolean wormholeCanDestroyUnbreakableBlocks = false;
 
+    // Search Ranges for ZPM & Tools
+    public static int zpmSearchRange = 6;
+    public static int toolSearchRange = 6;
+
     public static PermissionsUtil permissionsUtil;
 
     public SGCraft() {
@@ -629,6 +633,10 @@ public class SGCraft extends BaseMod<SGCraftClient> {
         // ZPM Console
         ZPMEnergyPerSGEnergyUnit = config.getDouble("zpm-power", "zpmEnergyPerSGEnergyUnit", FPPerSGEnergyUnit);
         forceZPMCfgUpdate = config.getBoolean("zpm-power", "force-update", forceZPMCfgUpdate);
+
+        // Range lookups for various things...
+        zpmSearchRange = config.getInteger("stargate", "zpmSearchRange", zpmSearchRange);
+        toolSearchRange = config.getInteger("stargate", "toolSearchRange", toolSearchRange);
 
         // World Update / Fixes
         forceSGBaseTEUpdate = config.getBoolean("stargate", "force-default-configs", forceSGBaseTEUpdate);

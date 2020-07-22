@@ -1,7 +1,9 @@
 package gcewing.sg.util;
 
+import gcewing.sg.SGCraft;
 import gcewing.sg.tileentity.DHDTE;
 import gcewing.sg.tileentity.SGBaseTE;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -12,24 +14,26 @@ public class GateUtil {
             pos.add(-radius, -radius, -radius),
             pos.add(radius, radius, radius)
         )) {
-            TileEntity gateTE = world.getTileEntity(nearPos);
+            if (world.getBlockState(nearPos).getBlock() == SGCraft.sgBaseBlock || world.getBlockState(nearPos).getBlock() == SGCraft.sgControllerBlock) {
+                TileEntity gateTE = world.getTileEntity(nearPos);
 
-            if (!(gateTE instanceof SGBaseTE)) {
-                TileEntity dhdBaseTE = GateUtil.locateDHD(world,pos, radius, debug);
-                if (dhdBaseTE instanceof DHDTE) {
-                    DHDTE dhd = (DHDTE) dhdBaseTE;
-                    if (dhd.isLinkedToStargate) {
-                        gateTE = dhd.getLinkedStargateTE();
+                if (!(gateTE instanceof SGBaseTE)) {
+                    TileEntity dhdBaseTE = GateUtil.locateDHD(world, pos, radius, debug);
+                    if (dhdBaseTE instanceof DHDTE) {
+                        DHDTE dhd = (DHDTE) dhdBaseTE;
+                        if (dhd.isLinkedToStargate) {
+                            gateTE = dhd.getLinkedStargateTE();
+                        }
                     }
                 }
-            }
 
-            if (gateTE instanceof SGBaseTE) {
-                if (gateTE != null) {
-                    if (debug) {
-                        System.err.println("Found SGBaseTE at: " + gateTE.getPos());
+                if (gateTE instanceof SGBaseTE) {
+                    if (gateTE != null) {
+                        if (debug) {
+                            System.err.println("Found SGBaseTE at: " + gateTE.getPos());
+                        }
+                        return gateTE;
                     }
-                    return gateTE;
                 }
             }
         }
@@ -45,14 +49,16 @@ public class GateUtil {
             pos.add(-radius, -radius, -radius),
             pos.add(radius, radius, radius)
         )) {
-            TileEntity dhdTE = world.getTileEntity(nearPos);
+            if (world.getBlockState(nearPos).getBlock() == SGCraft.sgControllerBlock) {
+                TileEntity dhdTE = world.getTileEntity(nearPos);
 
-            if (dhdTE instanceof DHDTE) {
-                if (dhdTE != null) {
-                    if (debug) {
-                        System.err.println("Found DHDTE at: " + dhdTE.getPos());
+                if (dhdTE instanceof DHDTE) {
+                    if (dhdTE != null) {
+                        if (debug) {
+                            System.err.println("Found DHDTE at: " + dhdTE.getPos());
+                        }
+                        return dhdTE;
                     }
-                    return dhdTE;
                 }
             }
         }

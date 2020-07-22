@@ -440,6 +440,7 @@ public class ConfiguratorNetworkHandler extends SGChannel {
         if (guiType == 1) {
             new ConfiguratorScreen(player,
                     player.world,
+                    pos,
                     isAdmin,
                     secondsToStayOpenPerm,
                     gateRotationSpeedPerm,

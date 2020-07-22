@@ -42,6 +42,7 @@ public class GdoScreen extends BasicScreen {
     private UIImage localGateImage, remoteGateImage;
     private UILabel localGateAddressLabel, remoteGateAddressLabel;
     private BlockPos location;
+    private BlockPos gatePos;
     private World world;
     private EntityPlayer player;
     public boolean isRemoteConnected, r_hasIrisUpgrade, r_hasChevronUpgrade, r_isIrisClosed, canAccessLocal, canAccessRemote;
@@ -49,11 +50,12 @@ public class GdoScreen extends BasicScreen {
     public int r_gateType;
     public SGBaseTE localGate;
 
-    public GdoScreen(EntityPlayer player, World worldIn,  boolean isAdmin, boolean isRemoteConnected, boolean r_hasIrisUpgrade, boolean r_hasChevronUpgrade,
+    public GdoScreen(EntityPlayer player, World worldIn,  BlockPos gatePos, boolean isAdmin, boolean isRemoteConnected, boolean r_hasIrisUpgrade, boolean r_hasChevronUpgrade,
         boolean r_isIrisClosed, int r_gateType, String r_address, boolean canAccessLocal, boolean canAccessRemote) {
         this.player = player;
-        this.isAdmin = isAdmin;
         this.world = worldIn;
+        this.gatePos = gatePos;
+        this.isAdmin = isAdmin;
         this.location = new BlockPos(player.posX, player.posY, player.posZ);
         this.isRemoteConnected = isRemoteConnected;
         this.r_hasIrisUpgrade = r_hasIrisUpgrade;
@@ -71,17 +73,7 @@ public class GdoScreen extends BasicScreen {
         this.guiscreenBackground = false;
         Keyboard.enableRepeatEvents(true);
 
-        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
-
-        if (!(localGateTE instanceof SGBaseTE)) {
-            TileEntity dhdBaseTE = GateUtil.locateDHD(world,new BlockPos(player.posX, player.posY, player.posZ), 6, false);
-            if (dhdBaseTE instanceof DHDTE) {
-                DHDTE dhd = (DHDTE) dhdBaseTE;
-                if (dhd.isLinkedToStargate) {
-                    localGateTE = dhd.getLinkedStargateTE();
-                }
-            }
-        }
+        TileEntity localGateTE = world.getTileEntity(gatePos);
 
         if (localGateTE instanceof SGBaseTE) {
             localGate = (SGBaseTE) localGateTE;

@@ -62,7 +62,7 @@ public class ConfiguratorItem extends Item {
   @Override
   public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer player, EnumHand handIn) {
       if (!worldIn.isRemote && !player.isSneaking()) {
-          TileEntity localGateTE = GateUtil.locateLocalGate(worldIn, new BlockPos(player.posX, player.posY, player.posZ), 6, false);
+          TileEntity localGateTE = GateUtil.locateLocalGate(worldIn, new BlockPos(player.posX, player.posY, player.posZ), SGCraft.toolSearchRange, false);
 
           if (localGateTE instanceof SGBaseTE) {
               SGBaseTE localGate = (SGBaseTE) localGateTE;

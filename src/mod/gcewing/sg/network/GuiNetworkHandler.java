@@ -122,11 +122,11 @@ public class GuiNetworkHandler extends SGChannel {
                 screen.r_gateType = r_gateType;
                 screen.r_address = r_address;
             } else {
-                new GdoScreen(player, player.world, isAdmin, r_connected, r_hasIrisUpgrade, r_hasChevronUpgrade, r_isIrisClosed, r_gateType, r_address, canAccessLocal, canAccessRemote).display();
+                new GdoScreen(player, player.world, pos, isAdmin, r_connected, r_hasIrisUpgrade, r_hasChevronUpgrade, r_isIrisClosed, r_gateType, r_address, canAccessLocal, canAccessRemote).display();
             }
         }
         if (guiType == 3) {
-            new PddScreen(player, player.world, isAdmin).display();
+            new PddScreen(player, player.world, pos, isAdmin).display();
         }
     }
 }

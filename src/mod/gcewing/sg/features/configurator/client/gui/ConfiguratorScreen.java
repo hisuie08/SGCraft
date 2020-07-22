@@ -1,6 +1,7 @@
 package gcewing.sg.features.configurator.client.gui;
 
 import com.google.common.eventbus.Subscribe;
+import gcewing.sg.SGCraft;
 import gcewing.sg.features.configurator.network.ConfiguratorNetworkHandler;
 import gcewing.sg.tileentity.SGBaseTE;
 import gcewing.sg.util.GateUtil;
@@ -43,6 +44,7 @@ public class ConfiguratorScreen extends BasicScreen {
     private UITextField secondsToStayOpen, gateRotationSpeed, energyBufferSize, energyPerNaquadah, gateOpeningsPerNaquadah, distanceMultiplier, dimensionalMultiplier;
     private UIButton gateAddressAccessListButton, playerAccessListButton;
     private BlockPos location;
+    private BlockPos gatePos;
     private World world;
     private EntityPlayer player;
     private boolean secondsToStayOpenPerm, gateRotationSpeedPerm, energyBufferSizePerm, energyPerNaquadahPerm, openingsPerNaquadahPerm, distanceFactorMultiplierPerm, interDimensionalMultiplierPerm;
@@ -57,14 +59,15 @@ public class ConfiguratorScreen extends BasicScreen {
     //    this.location = new BlockPos(player.posX, player.posY, player.posZ);
     //}
 
-    public ConfiguratorScreen(EntityPlayer player, World worldIn, boolean isAdmin, boolean secondsToStayOpenPerm, boolean gateRotationSpeedPerm, boolean energyBufferSizePerm, boolean energyPerNaquadahPerm, boolean openingsPerNaquadahPerm,
+    public ConfiguratorScreen(EntityPlayer player, World worldIn, BlockPos gatePos, boolean isAdmin, boolean secondsToStayOpenPerm, boolean gateRotationSpeedPerm, boolean energyBufferSizePerm, boolean energyPerNaquadahPerm, boolean openingsPerNaquadahPerm,
             boolean distanceFactorMultiplierPerm, boolean interDimensionalMultiplierPerm, boolean oneWayTravelOnlyPerm, boolean irisUpgradePerm, boolean chevronUpgradePerm, boolean pegasusGateTypePerm, boolean reverseWormholeKillsPerm,
             boolean closeFromEitherEndPerm, boolean preserveInventoryOnIrisDeathPerm, boolean noInputPowerRequiredPerm, boolean chevronsLockOnDialPerm, boolean returnToPreviousIrisStatePerm, boolean transientDamagePerm, boolean transparencyPerm,
             boolean dhdAsFuelSourcePerm, boolean allowRedstoneOutputPerm, boolean allowRedstoneInputPerm, boolean playerCanDestroyGatePerm, boolean displayGateAddressPerm, boolean gateAccessPerm, boolean playerAccessPerm) {
 
         this.player = player;
-        this.isAdmin = isAdmin;
         this.world = worldIn;
+        this.gatePos = gatePos;
+        this.isAdmin = isAdmin;
         this.secondsToStayOpenPerm = secondsToStayOpenPerm;
         this.gateRotationSpeedPerm = gateRotationSpeedPerm;
         this.energyBufferSizePerm = energyBufferSizePerm;
@@ -100,7 +103,7 @@ public class ConfiguratorScreen extends BasicScreen {
         this.guiscreenBackground = false;
         Keyboard.enableRepeatEvents(true);
 
-        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+        TileEntity localGateTE = world.getTileEntity(gatePos);
 
         if (!(localGateTE instanceof SGBaseTE)) {
             // Desync between server and client.  Client doesn't have TE data yet.
@@ -603,7 +606,7 @@ public class ConfiguratorScreen extends BasicScreen {
 
     @Subscribe
     public void onFocusStateChange(StateChangeEvent.FocusStateChange<UITextField> event) {
-        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
         if (localGateTE instanceof SGBaseTE) {
             SGBaseTE localGate = (SGBaseTE) localGateTE;
 
@@ -632,7 +635,7 @@ public class ConfiguratorScreen extends BasicScreen {
     }
 
     private void refresh() {
-        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
         if (localGateTE instanceof SGBaseTE) {
             SGBaseTE localGate = (SGBaseTE) localGateTE;
 

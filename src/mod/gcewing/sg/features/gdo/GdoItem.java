@@ -40,16 +40,6 @@ public class GdoItem extends Item {
         if (!worldIn.isRemote) {
             TileEntity localGateTE = GateUtil.locateLocalGate(worldIn, new BlockPos(player.posX, player.posY, player.posZ), 6, false);
 
-            if (!(localGateTE instanceof SGBaseTE)) {
-                TileEntity dhdBaseTE = GateUtil.locateDHD(worldIn,new BlockPos(player.posX, player.posY, player.posZ), 6, false);
-                if (dhdBaseTE instanceof DHDTE) {
-                    DHDTE dhd = (DHDTE) dhdBaseTE;
-                    if (dhd.isLinkedToStargate) {
-                        localGateTE = dhd.getLinkedStargateTE();
-                    }
-                }
-            }
-
             if (localGateTE instanceof SGBaseTE) {
                 SGBaseTE localGate = (SGBaseTE) localGateTE;
 

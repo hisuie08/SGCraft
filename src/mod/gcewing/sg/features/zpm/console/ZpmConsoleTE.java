@@ -7,6 +7,9 @@ import gcewing.sg.BaseTileInventory;
 import gcewing.sg.SGCraft;
 import gcewing.sg.features.zpm.ZPMItem;
 import gcewing.sg.interfaces.ISGEnergySource;
+import gcewing.sg.tileentity.DHDTE;
+import gcewing.sg.tileentity.SGBaseTE;
+import gcewing.sg.util.GateUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
@@ -173,6 +176,10 @@ public final class ZpmConsoleTE extends BaseTileInventory implements ISGEnergySo
         }
 
         markDirty();
+        if (this.isEmpty()) {
+            pingSGBaseTE();
+        }
+
         return ItemStackHelper.getAndRemove(this.items, 0);
     }
 
@@ -204,8 +211,35 @@ public final class ZpmConsoleTE extends BaseTileInventory implements ISGEnergySo
             world.setBlockState(pos, other,  3);
         }
 
+        if (this.isEmpty()) {
+            pingSGBaseTE();
+        }
+
         markDirty();
         return item;
+    }
+
+    private void pingSGBaseTE() {
+        if (this.world.isRemote) {
+            return;
+        }
+
+        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.pos, SGCraft.zpmSearchRange, false);
+
+        if (!(localGateTE instanceof SGBaseTE)) {
+            TileEntity dhdBaseTE = GateUtil.locateDHD(this.world, this.pos, SGCraft.zpmSearchRange, false);
+            if (dhdBaseTE instanceof DHDTE) {
+                DHDTE dhd = (DHDTE) dhdBaseTE;
+                if (dhd.isLinkedToStargate) {
+                    localGateTE = dhd.getLinkedStargateTE();
+                }
+            }
+        }
+
+        if (localGateTE instanceof SGBaseTE) {
+            SGBaseTE localGate = (SGBaseTE) localGateTE;
+            localGate.validateZPM();
+        }
     }
 
     @Override
@@ -394,9 +428,7 @@ public final class ZpmConsoleTE extends BaseTileInventory implements ISGEnergySo
     @Override
     public double availableEnergy() {
         double available = this.storage.getEnergyStored() / energyPerSGEnergyUnit;
-
-        System.out.println("ZPM Console at: " + this.pos + " / " + this.world + " Power debug: " + this.storage.getEnergyStored() + " / " + energyPerSGEnergyUnit + " == " + (int)available);
-
+       // System.out.println("ZPM Console at: " + this.pos + " / " + this.world + " Power debug: " + this.storage.getEnergyStored() + " / " + energyPerSGEnergyUnit + " == " + (int)available);
         return available;
     }
 

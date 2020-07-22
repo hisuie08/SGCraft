@@ -4,6 +4,7 @@ import static gcewing.sg.tileentity.SGBaseTE.sendBasicMsg;
 import static gcewing.sg.tileentity.SGBaseTE.sendErrorMsg;
 
 import com.google.common.eventbus.Subscribe;
+import gcewing.sg.SGCraft;
 import gcewing.sg.features.configurator.network.ConfiguratorNetworkHandler;
 import gcewing.sg.tileentity.SGBaseTE;
 import gcewing.sg.tileentity.data.PlayerAccessData;
@@ -67,7 +68,7 @@ public class PlayerAccessScreen extends BasicScreen {
     public void construct() {
         this.guiscreenBackground = false;
         Keyboard.enableRepeatEvents(true);
-        final TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+        final TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
         if (localGateTE instanceof SGBaseTE) {
             localGate = (SGBaseTE) localGateTE;
         }

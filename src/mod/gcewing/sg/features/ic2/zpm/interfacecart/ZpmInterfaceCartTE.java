@@ -7,6 +7,9 @@ import gcewing.sg.BaseTileInventory;
 import gcewing.sg.features.zpm.ZPMItem;
 import gcewing.sg.interfaces.ISGEnergySource;
 import gcewing.sg.SGCraft;
+import gcewing.sg.tileentity.DHDTE;
+import gcewing.sg.tileentity.SGBaseTE;
+import gcewing.sg.util.GateUtil;
 import ic2.api.energy.prefab.BasicSource;
 import ic2.api.energy.tile.IEnergyAcceptor;
 import ic2.api.energy.tile.IEnergySource;
@@ -212,6 +215,10 @@ public final class ZpmInterfaceCartTE extends BaseTileInventory implements ISGEn
             markChanged();
         }
 
+        if (this.isEmpty()) {
+            pingSGBaseTE();
+        }
+
         return ItemStackHelper.getAndRemove(this.items, 0);
     }
 
@@ -238,7 +245,22 @@ public final class ZpmInterfaceCartTE extends BaseTileInventory implements ISGEn
             markChanged();
         }
 
+        if (this.isEmpty()) {
+            pingSGBaseTE();
+        }
+
         return item;
+    }
+
+    private void pingSGBaseTE() {
+        if (!world.isRemote) {
+            TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.pos, SGCraft.zpmSearchRange, false);
+
+            if (localGateTE instanceof SGBaseTE) {
+                SGBaseTE localGate = (SGBaseTE) localGateTE;
+                localGate.validateZPM();
+            }
+        }
     }
 
     @Override

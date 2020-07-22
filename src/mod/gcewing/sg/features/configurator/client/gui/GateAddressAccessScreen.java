@@ -3,6 +3,7 @@ package gcewing.sg.features.configurator.client.gui;
 import static gcewing.sg.tileentity.SGBaseTE.sendBasicMsg;
 
 import com.google.common.eventbus.Subscribe;
+import gcewing.sg.SGCraft;
 import gcewing.sg.features.configurator.network.ConfiguratorNetworkHandler;
 import gcewing.sg.features.pdd.client.gui.PddEntryScreen;
 import gcewing.sg.features.pdd.network.PddNetworkHandler;
@@ -69,7 +70,7 @@ public class GateAddressAccessScreen extends BasicScreen {
     public void construct() {
         this.guiscreenBackground = false;
         Keyboard.enableRepeatEvents(true);
-        final TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+        final TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
         if (localGateTE instanceof SGBaseTE) {
             localGate = (SGBaseTE) localGateTE;
         }

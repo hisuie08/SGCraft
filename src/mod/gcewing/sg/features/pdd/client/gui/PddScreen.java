@@ -61,6 +61,7 @@ public class PddScreen extends BasicScreen {
     private UILabel localGateAddressLabel, gateStatusLabel, availableAddressesLabel, addressTextureLabel, userFeedbackLabel;
     private UISeparator valuesSeparator;
     private BlockPos location;
+    private BlockPos gatePos;
     private World world;
     private EntityPlayer player;
     private boolean delayedUpdate = true;
@@ -76,11 +77,12 @@ public class PddScreen extends BasicScreen {
     private BasicList<AddressData> addressList;
     private long timer;
 
-    public PddScreen(EntityPlayer player, World worldIn, boolean isAdmin) {
+    public PddScreen(EntityPlayer player, World worldIn, BlockPos gatePos, boolean isAdmin) {
         this.player = player;
         this.isAdmin = false;
         this.world = worldIn;
         this.location = new BlockPos(player.posX, player.posY, player.posZ);
+        this.gatePos = gatePos;
     }
 
     @Override
@@ -89,17 +91,7 @@ public class PddScreen extends BasicScreen {
 
         this.guiscreenBackground = false;
         Keyboard.enableRepeatEvents(true);
-        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
-
-        if (!(localGateTE instanceof SGBaseTE)) {
-            TileEntity dhdBaseTE = GateUtil.locateDHD(world,new BlockPos(player.posX, player.posY, player.posZ), 6, false);
-            if (dhdBaseTE instanceof DHDTE) {
-                DHDTE dhd = (DHDTE) dhdBaseTE;
-                if (dhd.isLinkedToStargate) {
-                    localGateTE = dhd.getLinkedStargateTE();
-                }
-            }
-        }
+        TileEntity localGateTE = world.getTileEntity(gatePos);
 
         if (localGateTE instanceof SGBaseTE) {
             localGate = (SGBaseTE) localGateTE;
@@ -208,7 +200,7 @@ public class PddScreen extends BasicScreen {
             .text(TextFormatting.WHITE + I18n.format("sgcraft.gui.button.disconnect"))
             .visible(false)
             .onClick(() -> {
-                TileEntity localGate = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+                TileEntity localGate = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
                 if (!(localGate instanceof SGBaseTE)) {
                     return;
                 } else if (localGate != null) {
@@ -449,7 +441,7 @@ public class PddScreen extends BasicScreen {
 
     private void dialRandom() {
         // Todo: figure out how to properly use this.
-        final TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+        final TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
         if (localGateTE instanceof SGBaseTE) {
             localGate = (SGBaseTE) localGateTE;
         }
@@ -459,7 +451,7 @@ public class PddScreen extends BasicScreen {
     }
 
     private void dialSelectedAddress() {
-        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+        TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
         if (localGateTE instanceof SGBaseTE) {
             localGate = (SGBaseTE) localGateTE;
         }
@@ -479,7 +471,7 @@ public class PddScreen extends BasicScreen {
     }
 
     private void dialSelectedAddressLockEachChevronIndividually() {
-        final TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+        final TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
         if (localGateTE instanceof SGBaseTE) {
             localGate = (SGBaseTE) localGateTE;
         }
@@ -518,7 +510,7 @@ public class PddScreen extends BasicScreen {
                 }
 
                 this.addressList.setVisible(false);
-                TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, 6, false);
+                TileEntity localGateTE = GateUtil.locateLocalGate(this.world, this.location, SGCraft.toolSearchRange, false);
 
                 if (localGateTE instanceof SGBaseTE) {
                     SGBaseTE localGate = (SGBaseTE) localGateTE;

@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class ZpmAddon {
 
-    final static boolean debugAddon = false;
+    static boolean debugAddon = true;
     final static DecimalFormat dFormat = new DecimalFormat("###,###,###,##0");
 
     public static boolean routeRequiresZPM(World origin, World destination) {
@@ -45,6 +45,7 @@ public class ZpmAddon {
     }
 
     public static double zpmPowerAvailable(World world, BlockPos pos, int radius, boolean debug) {
+        debugAddon = debug;
         double zpmPower = 0.0;
         for (final BlockPos.MutableBlockPos nearPos : BlockPos.getAllInBoxMutable(
             pos.add(-radius, -radius, -radius),
@@ -61,9 +62,9 @@ public class ZpmAddon {
                             if (debugAddon) {
                                 System.out.println("ZPM cart is empty");
                             }
-                            return 0;
+                        } else {
+                            zpmPower += ((ISGEnergySource) nte).availableEnergy();
                         }
-                        zpmPower += ((ISGEnergySource) nte).availableEnergy();
                     }
                     if (nte instanceof ZpmHubTE) {
                         if (debugAddon) {
@@ -73,9 +74,9 @@ public class ZpmAddon {
                             if (debugAddon) {
                                 System.out.println("ZPM Hub is empty");
                             }
-                            return 0;
+                        } else {
+                            zpmPower += ((ISGEnergySource) nte).availableEnergy();
                         }
-                        zpmPower += ((ISGEnergySource) nte).availableEnergy();
                     }
                 }
                 if (nte instanceof ZpmConsoleTE) {
@@ -86,15 +87,19 @@ public class ZpmAddon {
                         if (debugAddon) {
                             System.out.println("ZPM cart is empty");
                         }
-                        return 0;
+                    } else {
+                        zpmPower += ((ISGEnergySource) nte).availableEnergy();
                     }
-                    zpmPower += ((ISGEnergySource) nte).availableEnergy();
                 }
             }
         }
         if (debugAddon) {
             System.out.println("SGCraft:ZpmAddon - Power Available: " + dFormat.format(zpmPower));
         }
-        return zpmPower;
+        if (zpmPower <= 0) {
+            return 0;
+        } else {
+            return zpmPower;
+        }
     }
 }

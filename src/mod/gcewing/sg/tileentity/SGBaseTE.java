@@ -16,6 +16,7 @@ import gcewing.sg.BaseBlockUtils;
 import gcewing.sg.BaseConfiguration;
 import gcewing.sg.BaseTileInventory;
 import gcewing.sg.BaseUtils;
+import gcewing.sg.features.ic2.zpm.modulehub.ZpmHubTE;
 import gcewing.sg.features.zpm.console.ZpmConsoleTE;
 import gcewing.sg.generator.GeneratorAddressRegistry;
 import gcewing.sg.tileentity.data.GateAccessData;
@@ -1124,7 +1125,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             String destinationName = targetGate.getWorld().getWorldInfo().getWorldName().toLowerCase();
 
             if (ZpmAddon.routeRequiresZpm(originName, destinationName)) {
-                long power = (long) ZpmAddon.zpmPowerAvailable(world, this.pos, 4, false);
+                long power = (long) ZpmAddon.zpmPowerAvailable(world, this.pos, SGCraft.zpmSearchRange, false);
                 if (!(power > 0)) {
                     return diallingFailure(player, "zpmNotFound");
                 } else {
@@ -1180,7 +1181,8 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
 
         startDiallingStargate(address, targetGate, true, (this.chevronsLockOnDial && !ccInterface));
-        targetGate.enterState(SGState.attemptToDial, 5); // Force remote gate immediate change state to help chunk stay loaded
+        // targetGate.enterState(SGState.attemptToDial, 5); // Force remote gate immediate change state to help chunk stay loaded
+        // Disabled this on 7/21/2020 - Doc
         // Note to Dockter: added a check in update the dialing status; which is now causing a double chunk ticket load; because for some reason
         // the Computer interface is causing the TE's to double load?  Makes no sense, I know....
         targetGate.startDiallingStargate(homeAddress, this, false, (this.chevronsLockOnDial && !ccInterface));
@@ -1673,6 +1675,16 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         }
     }
 
+    public void validateZPM() {
+        if (this.destinationRequiresZPM && this.isConnected()) {
+            long power = (long) ZpmAddon.zpmPowerAvailable(world, this.pos, SGCraft.zpmSearchRange, false);
+            if (power <= 0) {
+                // Force disconnect if a zpm was required but suddenly missing or dead.
+                this.disconnect();
+            }
+        }
+    }
+
     public double availableEnergy() {
         List<ISGEnergySource> sources = findEnergySources(this.destinationRequiresZPM);
         return energyInBuffer + energyAvailableFrom(sources);
@@ -1705,6 +1717,16 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                 updated = 0;
             }
             return true;
+        }
+
+        System.out.println("ZPM Required: " + this.destinationRequiresZPM);
+
+        // Todo: this lookup is very slow.
+        if (this.destinationRequiresZPM) {
+            long power = (long) ZpmAddon.zpmPowerAvailable(world, this.pos, SGCraft.zpmSearchRange, false);
+            if (power == 0) {
+                this.disconnect();
+            }
         }
 
         List<ISGEnergySource> sources = findEnergySources(this.destinationRequiresZPM);
@@ -1789,6 +1811,14 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
                     }
                     if (debugEnergyUse)
                         System.out.println("Found ZpmInterfaceCartTE at: " + nte.getPos());
+                }
+
+                if(ic2Loaded && nte instanceof ZpmHubTE) {
+                    if (!((ZpmHubTE) nte).isEmpty()){
+                        result.add((ISGEnergySource) nte);
+                    }
+                    if (debugEnergyUse)
+                        System.out.println("Found ZpmHubTE at: " + nte.getPos());
                 }
 
                 if (nte instanceof ZpmConsoleTE) {
