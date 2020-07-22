@@ -127,21 +127,23 @@ public class DHDBlock extends BaseBlock<DHDTE> {
         if (localDHD != null) {
             if (localDHD.isLinkedToStargate) {
                 SGBaseTE localGate = localDHD.getLinkedStargateTE();
-                if (cy <= 0.5) {
-                    if (player != null && localGate.allowAdminAccess(player.getName())) {
-                        if (!world.isRemote) {
-                            SGCraft.mod.openGui(player, SGGui.DHDFuel, world, pos);
-                            return true;
-                        }
-                    }
-                } else {
-                    if (world.isRemote) { // Only call on the client, server call here not needed because it doesn't have a container.
-                        if (player != null && localGate.allowGateAccess(player.getName())) {
-                            SGCraft.mod.openGui(player, SGGui.SGController, world, pos);
-                            return true;
+                if (localGate != null) {
+                    if (cy <= 0.5) {
+                        if (player != null && localGate.allowAdminAccess(player.getName())) {
+                            if (!world.isRemote) {
+                                SGCraft.mod.openGui(player, SGGui.DHDFuel, world, pos);
+                                return true;
+                            }
                         }
                     } else {
-                        return true; // Server expects return true here if client was successful, which we can assume it was.
+                        if (world.isRemote) { // Only call on the client, server call here not needed because it doesn't have a container.
+                            if (player != null && localGate.allowGateAccess(player.getName())) {
+                                SGCraft.mod.openGui(player, SGGui.SGController, world, pos);
+                                return true;
+                            }
+                        } else {
+                            return true; // Server expects return true here if client was successful, which we can assume it was.
+                        }
                     }
                 }
             }
