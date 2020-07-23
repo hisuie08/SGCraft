@@ -1719,9 +1719,6 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             return true;
         }
 
-        System.out.println("ZPM Required: " + this.destinationRequiresZPM);
-
-        // Todo: this lookup is very slow.
         if (this.destinationRequiresZPM) {
             long power = (long) ZpmAddon.zpmPowerAvailable(world, this.pos, SGCraft.zpmSearchRange, false);
             if (power == 0) {
