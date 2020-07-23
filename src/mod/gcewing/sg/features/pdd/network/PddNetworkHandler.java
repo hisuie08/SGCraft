@@ -39,7 +39,7 @@ public class PddNetworkHandler extends SGChannel {
         String address = data.readUTF();
         int nextIndex = data.readInt();
         address = SGAddressing.formatAddress(address, "-", "-");
-        new PddEntryScreen(null, player, "Name Here", address, nextIndex, 0, false, false, 1).display();
+        new PddEntryScreen(null, player, "Name Here", address, nextIndex, 0, false, false,false, 1).display();
     }
 
     public static void updatePdd(EntityPlayer player, boolean value, int status) {
@@ -121,13 +121,14 @@ public class PddNetworkHandler extends SGChannel {
         }
     }
 
-    public static void sendPddEntryUpdateToServer(String name, String address, int index, int unid, boolean locked) {
+    public static void sendPddEntryUpdateToServer(String name, String address, int index, int unid, boolean locked, boolean autoClose) {
         ChannelOutput data = pddChannel.openServer("PddInputEntry");
         data.writeUTF(name);
         data.writeUTF(address);
         data.writeInt(index);
         data.writeInt(unid);
         data.writeBoolean(locked);
+        data.writeBoolean(autoClose);
         data.close();
     }
 
@@ -138,6 +139,7 @@ public class PddNetworkHandler extends SGChannel {
         int index = data.readInt();
         int unid = data.readInt();
         boolean locked = data.readBoolean();
+        boolean autoClose = data.readBoolean();
 
         if (!SGCraft.hasPermission(player, "sgcraft.gui.pdd.edit")) {
             System.err.println("SGCraft - Hacked Client detected!");
@@ -148,7 +150,7 @@ public class PddNetworkHandler extends SGChannel {
         if (stack != null) {
             NBTTagCompound compound = stack.getTagCompound();
             if (compound != null) {
-                AddressData.updateAddress(player, compound, unid, name, address, index, locked);
+                AddressData.updateAddress(player, compound, unid, name, address, index, locked, autoClose);
                 stack.setTagCompound(compound);
                 player.inventoryContainer.detectAndSendChanges();
                 PddNetworkHandler.updatePdd(player, false, 1);

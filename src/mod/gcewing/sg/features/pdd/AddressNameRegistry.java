@@ -48,12 +48,13 @@ public final class AddressNameRegistry {
             final String address = addressEntry.getKey().toString().toLowerCase();
             final String name = addressEntry.getValue().getNode("name").getString("");
             final boolean locked = addressEntry.getValue().getNode("locked").getBoolean(true);
+            final boolean autoClose = addressEntry.getValue().getNode("autoClose").getBoolean(false);
             if (name.isEmpty()) {
                 System.err.println("Unable to add default PDD entry, missing name!");
                 continue;
             }
 
-            entries.put(address, new AddressDataEntry(name, locked));
+            entries.put(address, new AddressDataEntry(name, locked, autoClose));
         }
     }
 
@@ -74,9 +75,10 @@ public final class AddressNameRegistry {
             final String address = entry.getKey();
             final String name = entry.getValue().getName();
             final boolean locked = entry.getValue().isLocked();
+            final boolean autoClose = entry.getValue().isAutoClose();
 
             if (address.length() == 11 && address.substring(4,5).equalsIgnoreCase("-") && address.substring(8,9).equalsIgnoreCase("-")) {
-                addresses.add(new AddressData(name, address.toUpperCase(), locked, index, 0));
+                addresses.add(new AddressData(name, address.toUpperCase(), locked, index, 0, autoClose));
                 index++;
             } else {
                 System.err.println("Unable to add default PDD entry, invalid address format!");

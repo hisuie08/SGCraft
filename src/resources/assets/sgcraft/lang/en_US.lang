@@ -77,7 +77,7 @@ sgcraft.gui.button.close=Close
 sgcraft.gui.button.openIris=Open Iris
 sgcraft.gui.button.closeIris=Close Iris
 sgcraft.gui.button.reset=Reset
-sgcraft.gui.button.dialSelectedAddress=Dial Selected Address
+sgcraft.gui.button.dialSelectedAddress=Dial
 sgcraft.gui.button.disconnect=Disconnect
 
 sgcraft.gui.configurator.label.configurator=Configurator

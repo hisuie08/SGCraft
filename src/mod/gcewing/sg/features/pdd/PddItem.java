@@ -5,7 +5,6 @@ import static gcewing.sg.tileentity.SGBaseTE.sendErrorMsg;
 import gcewing.sg.SGCraft;
 import gcewing.sg.features.pdd.network.PddNetworkHandler;
 import gcewing.sg.network.GuiNetworkHandler;
-import gcewing.sg.tileentity.DHDTE;
 import gcewing.sg.tileentity.SGBaseTE;
 import gcewing.sg.util.GateUtil;
 import gcewing.sg.util.SGState;

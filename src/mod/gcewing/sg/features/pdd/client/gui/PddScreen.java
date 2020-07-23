@@ -33,6 +33,7 @@ import net.malisis.core.client.gui.component.container.BasicList;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.client.gui.component.decoration.UISeparator;
 import net.malisis.core.client.gui.component.interaction.UIButton;
+import net.malisis.core.client.gui.component.interaction.UICheckBox;
 import net.malisis.core.client.gui.component.interaction.button.builder.UIButtonBuilder;
 import net.malisis.core.renderer.font.FontOptions;
 import net.malisis.core.util.FontColors;
@@ -48,7 +49,6 @@ import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import java.io.IOException;
 import java.util.List;
 
 public class PddScreen extends BasicScreen {
@@ -60,6 +60,7 @@ public class PddScreen extends BasicScreen {
     private UIButton addAddressButton, editAddressButton, deleteAddressButton, buttonReset, closeButton, buttonDial, buttonDisconnect;
     private UILabel localGateAddressLabel, gateStatusLabel, availableAddressesLabel, addressTextureLabel, userFeedbackLabel;
     private UISeparator valuesSeparator;
+    private UICheckBox autoCloseChk;
     private BlockPos location;
     private BlockPos gatePos;
     private World world;
@@ -118,7 +119,7 @@ public class PddScreen extends BasicScreen {
         localGateAddressLabel.setFontOptions(FontOptions.builder().from(FontColors.BLUE_FO).shadow(true).scale(1.0F).build());
         localGateAddressLabel.setPosition(-5, 1, Anchor.RIGHT | Anchor.TOP);
 
-        gateStatusLabel = new UILabel(this, TextFormatting.WHITE + I18n.format("sgcraft.gui.pdd.label.dialling"));
+        gateStatusLabel = new UILabel(this, TextFormatting.WHITE + I18n.format("sgcraft.gui.pdd.label.dialing"));
         gateStatusLabel.setFontOptions(FontOptions.builder().from(FontColors.BLUE_FO).shadow(true).scale(1.8F).build());
         gateStatusLabel.setPosition(-5, 50, Anchor.CENTER | Anchor.TOP);
         gateStatusLabel.setVisible(true);
@@ -148,7 +149,7 @@ public class PddScreen extends BasicScreen {
 
         this.addAddressButton = new UIButtonBuilder(this)
             .text(TextFormatting.GREEN + "+")
-            .onClick(() -> new PddEntryScreen(this, player, "Name Here", "Address Here", 10, 0, false, false, 1).display())
+            .onClick(() -> new PddEntryScreen(this, player, "Name Here", "Address Here", 10, 0, false, false,false, 1).display())
             .anchor(Anchor.BOTTOM | Anchor.LEFT)
             .position(0, 0)
             //.visible(this.canAdd)
@@ -158,7 +159,7 @@ public class PddScreen extends BasicScreen {
             .text(TextFormatting.RED + "-")
             .onClick(() -> {
                 if (addressList.getSelectedItem() != null && !addressList.getSelectedItem().isLocked()) {
-                    new PddEntryScreen(this, player, addressList.getSelectedItem().getName(), addressList.getSelectedItem().getAddress(), addressList.getSelectedItem().getIndex(), addressList.getSelectedItem().getUnid(), addressList.getSelectedItem().isLocked(), true,3).display();
+                    new PddEntryScreen(this, player, addressList.getSelectedItem().getName(), addressList.getSelectedItem().getAddress(), addressList.getSelectedItem().getIndex(), addressList.getSelectedItem().getUnid(), addressList.getSelectedItem().isLocked(), addressList.getSelectedItem().isAutoClose(), true,3).display();
                 }
             })
             .anchor(Anchor.BOTTOM | Anchor.LEFT)
@@ -168,11 +169,16 @@ public class PddScreen extends BasicScreen {
 
         this.editAddressButton = new UIButtonBuilder(this)
             .text(TextFormatting.YELLOW + "?")
-            .onClick(() -> new PddEntryScreen(this, player, addressList.getSelectedItem().getName(), addressList.getSelectedItem().getAddress(), addressList.getSelectedItem().getIndex(), addressList.getSelectedItem().getUnid(), addressList.getSelectedItem().isLocked(), false,2).display())
+            .onClick(() -> new PddEntryScreen(this, player, addressList.getSelectedItem().getName(), addressList.getSelectedItem().getAddress(), addressList.getSelectedItem().getIndex(), addressList.getSelectedItem().getUnid(), addressList.getSelectedItem().isLocked(), addressList.getSelectedItem().isAutoClose(),false,2).display())
             .anchor(Anchor.BOTTOM | Anchor.LEFT)
             .position(BasicScreen.getPaddedX(this.deleteAddressButton, 2), 0)
             //.visible(this.canModify)
             .build("button.details");
+
+        this.autoCloseChk = new UICheckBox(this, TextFormatting.WHITE + "Auto Close");
+        this.autoCloseChk.setAnchor(Anchor.BOTTOM | Anchor.LEFT);
+        this.autoCloseChk.setPosition(BasicScreen.getPaddedX(this.editAddressButton, 2), -2);
+        this.autoCloseChk.setChecked(false);
 
         buttonDial = new UIButtonBuilder(this)
             .width(40)
@@ -219,13 +225,14 @@ public class PddScreen extends BasicScreen {
         userFeedbackLabel = new UILabel(this, TextFormatting.WHITE + I18n.format("sgcraft.gui.pdd.label.warning"));
         userFeedbackLabel.setPosition(-15, -3, Anchor.CENTER | Anchor.BOTTOM);
 
-        this.form.add(this.addressContainer, addAddressButton, editAddressButton, deleteAddressButton, buttonDial, buttonReset, buttonDisconnect, userFeedbackLabel, buttonClose);
+        this.form.add(this.addressContainer, addAddressButton, editAddressButton, deleteAddressButton, autoCloseChk, buttonDial, buttonReset, buttonDisconnect, userFeedbackLabel, buttonClose);
         addToScreen(this.form);
         //this.readAddresses(player);
     }
 
     @Subscribe
     public void onListChange(BasicList.SelectEvent<GateAccessData> event) {
+        //System.out.println("Ping");
         if (this.addressList.getSize() == 0) {
             this.deleteAddressButton.setEnabled(false);
             this.editAddressButton.setEnabled(false);
@@ -271,9 +278,13 @@ public class PddScreen extends BasicScreen {
                 if ((this.dialling || this.last || localGate.state == SGState.SyncAwait || localGate.state == SGState.Transient)) {
                     this.buttonDial.setVisible(false);
                     this.addressList.setVisible(false);
+                    this.autoCloseChk.setVisible(false);
                     this.availableAddressesLabel.setVisible(false);
                     this.localGateAddressLabel.setVisible(false);
                     if (localGate.state == SGState.SyncAwait || localGate.state == SGState.Transient) {
+                        if (this.autoCloseChk.isChecked()) {
+                            this.close();
+                        }
                         this.gateStatusLabel.setText(I18n.format("sgcraft.gui.pdd.label.establishing"));
                         gateStatusLabel.setFontOptions(FontOptions.builder().from(FontColors.GREEN_FO).shadow(true).scale(1.8F).build());
                         if (this.enteredAddress.isEmpty()) {
@@ -284,6 +295,14 @@ public class PddScreen extends BasicScreen {
 
                     if (localGate.state == SGState.Idle && !localGate.errorState && !dialling) {
                         this.addressList.setVisible(true);
+                        this.autoCloseChk.setVisible(true);
+                        if (this.addressList.getSize() > 0 && this.addressList.getSelectedItem() != null && !this.addressList.getSelectedItem().getAddress().isEmpty()) {
+                            if (this.addressList.getSelectedItem().getAddress().equalsIgnoreCase(this.localGateAddressLabel.getText())) {
+                                this.buttonDial.setEnabled(false);
+                            } else {
+                                this.buttonDial.setEnabled(true);
+                            }
+                        }
                         this.buttonDial.setVisible(true);
                         this.localGateAddressLabel.setVisible(true);
                         this.availableAddressesLabel.setVisible(true);
@@ -299,6 +318,7 @@ public class PddScreen extends BasicScreen {
                         }
 
                         this.addressList.setVisible(false);
+                        this.autoCloseChk.setVisible(false);
                         this.buttonDisconnect.setVisible(true);
                         this.gateStatusLabel.setFontOptions(FontOptions.builder().from(FontColors.BLUE_FO).shadow(true).scale(1.8F).build());
                         this.gateStatusLabel.setText(I18n.format("sgcraft.gui.pdd.label.dialing"));
@@ -307,6 +327,7 @@ public class PddScreen extends BasicScreen {
 
                     if (localGate.state == SGState.Disconnecting) {
                         this.addressList.setVisible(false);
+                        this.autoCloseChk.setVisible(false);
                         this.gateStatusLabel.setFontOptions(FontOptions.builder().from(FontColors.YELLOW_FO).shadow(true).scale(1.8F).build());
                         this.gateStatusLabel.setText(I18n.format("sgcraft.gui.pdd.label.disconnecting"));
 
@@ -345,6 +366,7 @@ public class PddScreen extends BasicScreen {
                     this.last = false;
                     this.buttonDial.setVisible(false);
                     this.buttonReset.setVisible(false);
+                    this.autoCloseChk.setVisible(false);
                     this.buttonDisconnect.setVisible(true);
                     this.buttonDisconnect.setEnabled(true);
                 } else {
@@ -358,12 +380,23 @@ public class PddScreen extends BasicScreen {
                 this.valuesSeparator.setVisible(!this.addressList.isVisible());
                 this.userFeedbackLabel.setVisible(!this.buttonDial.isVisible() && !this.buttonReset.isVisible() && !this.buttonDisconnect.isVisible() && !(localGate.state == SGState.Disconnecting));
                 this.gateStatusLabel.setVisible(!this.addressList.isVisible());
+
+                if (this.addressList.getSize() > 0 && this.addressList.getSelectedItem() != null) {
+                    this.autoCloseChk.setChecked(this.addressList.getSelectedItem().isAutoClose());
+                    this.deleteAddressButton.setEnabled(!this.addressList.getSelectedItem().isLocked());
+                }
             }
         }
     }
 
     private void dial() {
         timer = System.currentTimeMillis();
+        if (this.addressList.getSize() > 0 && this.addressList.getSelectedItem() != null && !this.addressList.getSelectedItem().getAddress().isEmpty()) {
+            if (this.addressList.getSelectedItem().getAddress().equalsIgnoreCase(this.localGateAddressLabel.getText())) {
+                // Don't dial, user lacks common sense.
+                return;
+            }
+        }
         if (this.addressList.getSize() > 0 && this.addressList.getSelectedItem() != null && !this.addressList.getSelectedItem().getAddress().isEmpty()) {
             this.resetGui(); //Reset before starting to account for half dialed sequences
             this.lastUpdate = 0;
@@ -428,7 +461,6 @@ public class PddScreen extends BasicScreen {
     private void detectChange() {
         final ItemStack stack = player.getHeldItemMainhand();
         NBTTagCompound compound = stack.getTagCompound();
-
         if (compound != null) {
             List<AddressData> comparedList = AddressData.getAddresses(compound);
             if (!comparedList.equals(clonedList)) {

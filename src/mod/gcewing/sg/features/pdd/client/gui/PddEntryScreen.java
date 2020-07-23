@@ -8,6 +8,7 @@ import net.malisis.core.client.gui.BasicScreen;
 import net.malisis.core.client.gui.component.container.BasicForm;
 import net.malisis.core.client.gui.component.decoration.UILabel;
 import net.malisis.core.client.gui.component.interaction.UIButton;
+import net.malisis.core.client.gui.component.interaction.UICheckBox;
 import net.malisis.core.client.gui.component.interaction.UITextField;
 import net.malisis.core.client.gui.component.interaction.button.builder.UIButtonBuilder;
 import net.malisis.core.renderer.font.FontOptions;
@@ -25,14 +26,15 @@ public class PddEntryScreen extends BasicScreen {
     private boolean unlockMouse = true;
     private BasicForm form;
     private UIButton localIrisOpenButton, localGateCloseButton, localIrisCloseButton, remoteIrisOpenButton, remoteGateCloseButton, remoteIrisCloseButton;
+    private UICheckBox autoCloseChk;
     private UITextField nameTextField, addressTextField, indexTextField;
     private EntityPlayer player;
-    public boolean isLocked, delete;
+    public boolean isLocked, autoClose, delete;
     public String name;
     public String address;
     public int index, unid, type;
 
-    public PddEntryScreen(BasicScreen parent, EntityPlayer player, String name, String address, int index, int unid, boolean isLocked, boolean delete, int type) {
+    public PddEntryScreen(BasicScreen parent, EntityPlayer player, String name, String address, int index, int unid, boolean isLocked, boolean autoClose, boolean delete, int type) {
         super(parent, true);
         this.player = player;
         this.name = name;
@@ -40,6 +42,7 @@ public class PddEntryScreen extends BasicScreen {
         this.index = index;
         this.unid = unid;
         this.isLocked = isLocked;
+        this.autoClose = autoClose;
         this.delete = delete;
         this.type = type;
     }
@@ -109,6 +112,11 @@ public class PddEntryScreen extends BasicScreen {
 
         // ****************************************************************************************************************************
 
+        this.autoCloseChk = new UICheckBox(this, TextFormatting.WHITE + "Auto Close on Connect");
+        this.autoCloseChk.setAnchor(Anchor.BOTTOM | Anchor.LEFT);
+        this.autoCloseChk.setPosition(0, -2);
+        this.autoCloseChk.setChecked(autoClose);
+
         // Close button
         final UIButton buttonClose = new UIButtonBuilder(this)
                 .width(40)
@@ -128,7 +136,7 @@ public class PddEntryScreen extends BasicScreen {
             .anchor(Anchor.BOTTOM | Anchor.RIGHT)
             .text(TextFormatting.WHITE + I18n.format("sgcraft.gui.button.delete"))
             .onClick(() -> {
-                PddNetworkHandler.sendPddEntryUpdateToServer(this.nameTextField.getText().trim(), this.addressTextField.getText().trim(), -1, this.unid, this.isLocked);
+                PddNetworkHandler.sendPddEntryUpdateToServer(this.nameTextField.getText().trim(), this.addressTextField.getText().trim(), -1, this.unid, this.isLocked, this.autoCloseChk.isChecked());
                 this.close();
 
             })
@@ -144,7 +152,7 @@ public class PddEntryScreen extends BasicScreen {
             .text(TextFormatting.WHITE + I18n.format("sgcraft.gui.button.save"))
             .onClick(() -> {
                 if (this.addressTextField.getText().length() == 11 && this.addressTextField.getText().substring(4,5).equalsIgnoreCase("-") && this.addressTextField.getText().substring(8,9).equalsIgnoreCase("-")) {
-                    PddNetworkHandler.sendPddEntryUpdateToServer(this.nameTextField.getText().trim(), this.addressTextField.getText().trim(), Integer.valueOf(this.indexTextField.getText()), this.unid, this.isLocked);
+                    PddNetworkHandler.sendPddEntryUpdateToServer(this.nameTextField.getText().trim(), this.addressTextField.getText().trim(), Integer.valueOf(this.indexTextField.getText()), this.unid, this.isLocked, this.autoCloseChk.isChecked());
                     this.close();
                 } else {
                     sendErrorMsg(player, "invalidFormat");
@@ -153,7 +161,7 @@ public class PddEntryScreen extends BasicScreen {
             .listener(this)
             .build("button.save");
 
-        this.form.add(titleLabel, nameLabel, nameTextField, addressLabel, addressTextField, indexLabel, indexTextField, buttonDelete, buttonSave, buttonClose);
+        this.form.add(titleLabel, nameLabel, nameTextField, addressLabel, addressTextField, indexLabel, autoCloseChk, indexTextField, buttonDelete, buttonSave, buttonClose);
         addToScreen(this.form);
     }
 

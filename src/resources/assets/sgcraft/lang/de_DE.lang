@@ -74,7 +74,7 @@ sgcraft.gui.button.close=Schließen
 sgcraft.gui.button.openIris=Öffnen
 sgcraft.gui.button.closeIris=Schließen
 sgcraft.gui.button.reset=Zurücksetzen
-sgcraft.gui.button.dialSelectedAddress=Markierte Adresse wählen
+sgcraft.gui.button.dialSelectedAddress=Wählen
 sgcraft.gui.button.disconnect=Trennen
 
 sgcraft.gui.configurator.label.configurator=Konfigurator

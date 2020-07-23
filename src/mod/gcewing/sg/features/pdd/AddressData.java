@@ -20,19 +20,22 @@ public final class AddressData implements Comparable<AddressData> {
     private static final String LOCKED = "locked";
     private static final String INDEX = "index";
     private static final String UNID = "unid";
+    private static final String AUTOCLOSE = "autoclose";
 
     private final String name;
     private final String address;
     private final boolean locked;
     private final int index;
     private final int unid;
+    private final boolean autoClose;
 
-    public AddressData(final String name, final String address, final boolean locked, final int index, final int unid) {
+    public AddressData(final String name, final String address, final boolean locked, final int index, final int unid, final boolean autoClose) {
         this.name = name;
         this.address = address;
         this.locked = locked;
         this.index = index;
         this.unid = unid;
+        this.autoClose = autoClose;
     }
 
     public String getName() {
@@ -47,6 +50,10 @@ public final class AddressData implements Comparable<AddressData> {
         return locked;
     }
 
+    public boolean isAutoClose() {
+        return autoClose;
+    }
+
     public int getIndex() {
         return index;
     }
@@ -55,7 +62,7 @@ public final class AddressData implements Comparable<AddressData> {
         return unid;
     }
 
-    public static void updateAddress(EntityPlayer player, NBTTagCompound compound, int unid, String newName, String newAddress, int newIndex, boolean locked) {
+    public static void updateAddress(EntityPlayer player, NBTTagCompound compound, int unid, String newName, String newAddress, int newIndex, boolean locked, boolean autoClose) {
         checkNotNull(compound);
         final List<AddressData> addresses = new ArrayList<>();
         final NBTTagList list = compound.getTagList(ADDRESSES, Constants.NBT.TAG_COMPOUND);
@@ -67,15 +74,16 @@ public final class AddressData implements Comparable<AddressData> {
                 addressCompound.setString(NAME, newName);
                 addressCompound.setString(ADDRESS, newAddress);
                 addressCompound.setInteger(INDEX, newIndex);
+                addressCompound.setBoolean(AUTOCLOSE, autoClose);
             }
 
             if (!(addressCompound.getInteger(INDEX) == -1)) { // -1 means delete the entry, so skip re-adding it to the list.
-                addresses.add(new AddressData(addressCompound.getString(NAME), addressCompound.getString(ADDRESS), addressCompound.getBoolean(LOCKED), addressCompound.getInteger(INDEX), addressCompound.getInteger(UNID)));
+                addresses.add(new AddressData(addressCompound.getString(NAME), addressCompound.getString(ADDRESS), addressCompound.getBoolean(LOCKED), addressCompound.getInteger(INDEX), addressCompound.getInteger(UNID), addressCompound.getBoolean(AUTOCLOSE)));
             }
         }
 
         if (unid == 0) { // Indicates new request.
-            addresses.add(new AddressData(newName, newAddress, locked, newIndex, 1));
+            addresses.add(new AddressData(newName, newAddress, locked, newIndex, 1, autoClose));
         }
 
         writeAddresses(compound, addresses);
@@ -94,8 +102,9 @@ public final class AddressData implements Comparable<AddressData> {
             final boolean locked = addressCompound.getBoolean(LOCKED);
             final int index = addressCompound.getInteger(INDEX);
             final int unid = addressCompound.getInteger(UNID);
+            final boolean autoClose = addressCompound.getBoolean(AUTOCLOSE);
 
-            addresses.add(new AddressData(name, address, locked, index, unid));
+            addresses.add(new AddressData(name, address, locked, index, unid, autoClose));
         }
 
         Collections.sort(addresses);
@@ -116,6 +125,7 @@ public final class AddressData implements Comparable<AddressData> {
             addressCompound.setBoolean(LOCKED, data.isLocked());
             addressCompound.setInteger(INDEX, data.getIndex());
             addressCompound.setInteger(UNID, data.hashCode());
+            addressCompound.setBoolean(AUTOCLOSE, data.isAutoClose());
 
             list.appendTag(addressCompound);
         }
@@ -134,12 +144,12 @@ public final class AddressData implements Comparable<AddressData> {
             return false;
         }
         AddressData that = (AddressData) o;
-        return Objects.equals(address + name + index + locked, that.address + that.name + that.index + that.locked);
+        return Objects.equals(address + name + index + locked + autoClose, that.address + that.name + that.index + that.locked + that.autoClose);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(address + name + index + locked);
+        return Objects.hash(address + name + index + locked + autoClose);
     }
 
     @Override
