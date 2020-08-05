@@ -6,16 +6,17 @@
 
 package gcewing.sg;
 
-import java.util.*;
-
-import net.minecraft.nbt.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.world.*;
-import net.minecraft.util.math.*;
-
-import net.minecraftforge.common.*;
+import gcewing.sg.tileentity.SGBaseTE;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.ForgeChunkManager.Type;
+
+import java.util.List;
 
 public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
 
@@ -61,22 +62,24 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
     }
     
     public void setForcedChunkRange(BaseTileEntity te, int minX, int minZ, int maxX, int maxZ) {
-        te.releaseChunkTicket();
-        Ticket ticket = getChunkTicket(te);
-        if (ticket != null) {
-            BlockPos pos = te.getPos();
-            NBTTagCompound nbt = ticket.getModData();
-            nbt.setString("type", "TileEntity");
-            nbt.setInteger("xCoord", pos.getX());
-            nbt.setInteger("yCoord", pos.getY());
-            nbt.setInteger("zCoord", pos.getZ());
-            nbt.setInteger("rangeMinX", minX);
-            nbt.setInteger("rangeMinZ", minZ);
-            nbt.setInteger("rangeMaxX", maxX);
-            nbt.setInteger("rangeMaxZ", maxZ);
-            forceChunkRangeOnTicket(te, ticket);
-        } else {
-            System.out.print("SGCraft: unable to create chunk ticket; this will likely cause issues with remote gates prematurely unloading at: " + te.getPos() + " in world: " + te.getWorld().getWorldInfo().getWorldName());
+        if (te instanceof SGBaseTE) {
+            te.releaseChunkTicket();
+            Ticket ticket = getChunkTicket(te);
+            if (ticket != null) {
+                BlockPos pos = te.getPos();
+                NBTTagCompound nbt = ticket.getModData();
+                nbt.setString("type", "TileEntity");
+                nbt.setInteger("xCoord", pos.getX());
+                nbt.setInteger("yCoord", pos.getY());
+                nbt.setInteger("zCoord", pos.getZ());
+                nbt.setInteger("rangeMinX", minX);
+                nbt.setInteger("rangeMinZ", minZ);
+                nbt.setInteger("rangeMaxX", maxX);
+                nbt.setInteger("rangeMaxZ", maxZ);
+                forceChunkRangeOnTicket(te, ticket);
+            } else {
+                System.out.print("SGCraft: unable to create chunk ticket; this will likely cause issues with remote gates prematurely unloading at: " + te.getPos() + " in world: " + te.getWorld().getWorldInfo().getWorldName());
+            }
         }
     }
     
@@ -99,7 +102,8 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
         for (int i = minX; i <= maxX; i++)
             for (int j = minZ; j <= maxZ; j++) {
                 int x = chunkX + i, z = chunkZ + j;
-                //System.out.println("Created chunk ticket at: " + x + "/" + z);
+                if (debug)
+                    System.out.println("Created chunk ticket at: " + x + "/" + z + " for: " + te);
                 ForgeChunkManager.forceChunk(ticket, new ChunkPos(x, z));
             }
     }
@@ -134,5 +138,4 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
             System.out.printf("\n");
         }
     }
-
 }

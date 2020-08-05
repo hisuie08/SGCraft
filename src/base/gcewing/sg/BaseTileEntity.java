@@ -6,7 +6,13 @@
 
 package gcewing.sg;
 
+import static gcewing.sg.BaseReflectionUtils.classForName;
+import static gcewing.sg.BaseReflectionUtils.getFieldDef;
+import static gcewing.sg.BaseReflectionUtils.getIntField;
+import static gcewing.sg.BaseReflectionUtils.setIntField;
+
 import gcewing.sg.BaseMod.IBlock;
+import gcewing.sg.tileentity.SGBaseTE;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
@@ -24,8 +30,6 @@ import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 
 import java.lang.reflect.Field;
-
-import static gcewing.sg.BaseReflectionUtils.*;
 
 public class BaseTileEntity extends TileEntity
     implements BaseMod.ITileEntity
@@ -199,17 +203,19 @@ public class BaseTileEntity extends TileEntity
 
     @Override
     public void invalidate() {
-        if (!isPending) {
-            releaseChunkTicket();
-            //System.out.println("Invalidated TE: " + this);
+        if (!(this instanceof SGBaseTE)) {
             super.invalidate();
+        } else {
+            if (!isPending) {
+                releaseChunkTicket();
+                super.invalidate();
+            }
         }
-
-        isPending = false;
     }
     
     public void releaseChunkTicket() {
         if (chunkTicket != null) {
+            //System.out.println("Released Chunk Ticket on SGBaseTE: " + this + " on world: " + this.getWorld());
             ForgeChunkManager.releaseTicket(chunkTicket);
             chunkTicket = null;
         }

@@ -1179,9 +1179,10 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
         if (!GeneralAddressRegistry.addressExists(world, this.homeAddress)) {
             GeneralAddressRegistry.addAddress(world, this.homeAddress);
         }
-
+        // The following will keep the target gate from invalidating itself.
+        targetGate.isPending = true;
         startDiallingStargate(address, targetGate, true, (this.chevronsLockOnDial && !ccInterface));
-        // targetGate.enterState(SGState.attemptToDial, 5); // Force remote gate immediate change state to help chunk stay loaded
+        //targetGate.enterState(SGState.attemptToDial, 5); // Force remote gate immediate change state to help chunk stay loaded
         // Disabled this on 7/21/2020 - Doc
         // Note to Dockter: added a check in update the dialing status; which is now causing a double chunk ticket load; because for some reason
         // the Computer interface is causing the TE's to double load?  Makes no sense, I know....
@@ -1458,6 +1459,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             isInitiator = false;
             performBlockDamage = false;
             this.checkForMalfunction = false;
+            isPending = false;
             markChanged();
         }
     }
@@ -1471,6 +1473,7 @@ public class SGBaseTE extends BaseTileInventory implements ITickable, LoopingSou
             connectedLocation = null;
             checkForMalfunction = false;
             performBlockDamage = false;
+            isPending = false;
             markChanged();
             if (state == SGState.Connected) {
                 enterState(SGState.Disconnecting, disconnectTime);
