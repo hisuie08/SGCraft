@@ -215,8 +215,11 @@ public class BaseTileEntity extends TileEntity
     
     public void releaseChunkTicket() {
         if (chunkTicket != null) {
-            //System.out.println("Released Chunk Ticket on SGBaseTE: " + this + " on world: " + this.getWorld());
-            ForgeChunkManager.releaseTicket(chunkTicket);
+            if (chunkTicket.world != null) {
+                ForgeChunkManager.releaseTicket(chunkTicket);
+            } else {
+                System.out.println("chunk ticket release: WORLD IS NUL!!!");
+            }
             chunkTicket = null;
         }
     }
