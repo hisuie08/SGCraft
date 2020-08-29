@@ -94,8 +94,7 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
         int maxX = nbt.getInteger("rangeMaxX");
         int maxZ = nbt.getInteger("rangeMaxZ");
         if (debug)
-            System.out.printf("BaseChunkLoadingTE: Forcing range (%s,%s)-(%s,%s) in dimension %s\n",
-                minX, minZ, maxX, maxZ, te.getWorld().provider.getDimension());
+            System.out.printf("BaseChunkLoadingTE: Forcing range (%s,%s)-(%s,%s) in dimension %s\n", minX, minZ, maxX, maxZ, te.getWorld().provider.getDimension());
         BlockPos pos = te.getPos();
         int chunkX = pos.getX() >> 4;
         int chunkZ = pos.getZ() >> 4;
@@ -103,7 +102,11 @@ public class BaseTEChunkManager implements ForgeChunkManager.LoadingCallback {
             for (int j = minZ; j <= maxZ; j++) {
                 int x = chunkX + i, z = chunkZ + j;
                 if (debug)
-                    System.out.println("Created chunk ticket at: " + x + "/" + z + " for: " + te);
+                System.out.println("Created chunk ticket at: " + x + "/" + z + " for: " + te + " with ticket: " + ticket);
+                if (ticket.world == null) {
+                    System.out.println("World is null in chunk ticket!!!");
+                    return;
+                }
                 ForgeChunkManager.forceChunk(ticket, new ChunkPos(x, z));
             }
     }
